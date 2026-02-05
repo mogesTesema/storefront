@@ -2,7 +2,15 @@
 #    uv pip compile requirements.in -o requirements.lock
 asgiref==3.11.1
     # via django
+debugpy==1.8.20
+    # via -r requirements.in
 django==5.2.11
+    # via
+    #   -r requirements.in
+    #   django-debug-toolbar
+django-debug-toolbar==6.2.0
     # via -r requirements.in
 sqlparse==0.5.5
-    # via django
+    # via
+    #   django
+    #   django-debug-toolbar
