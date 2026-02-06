@@ -13,6 +13,3 @@ RUN uv pip install --system -r requirements.lock
 
 # then copy the rest
 COPY . .
-
-# Install debugpy for VS Code attach debugging
-RUN pip install debugpy
