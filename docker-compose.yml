@@ -1,9 +1,8 @@
-
 services:
   web:
     build: .
     working_dir: /app
-    command: python -m debugpy --listen 0.0.0.0:5678 manage.py runserver 0.0.0.0:8000
+    command: python -m debugpy --listen 0.0.0.0:5678 --wait-for-client manage.py runserver 0.0.0.0:8000
     volumes:
       - .:/app
     ports:
@@ -13,22 +12,20 @@ services:
       - backend.env
     depends_on:
       db:
-        condition: healthcheck
+        condition: service_healthy
 
   db:
     image: mysql:8.1
     restart: always
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 5s
-      retries: 5
-    volumes:
-      - mysql_data:/var/lib/mysql
-    # ports:
-    #   - "3306:3306"
     env_file:
       - db.env
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u${MYSQL_USER}", "-p${MYSQL_PASSWORD}"]
+      interval: 5s
+      retries: 10
+      timeout: 5s
+
 volumes:
   mysql_data:
-
-    
