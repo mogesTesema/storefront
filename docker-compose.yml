@@ -9,5 +9,26 @@ services:
     ports:
       - "8000:8000"
       - "5678:5678"
-    environment:
-      - DJANGO_AUTORELOAD_MODE=stat
+    env_file:
+      - backend.env
+    depends_on:
+      db:
+        condition: healthcheck
+
+  db:
+    image: mysql:8.1
+    restart: always
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      retries: 5
+    volumes:
+      - mysql_data:/var/lib/mysql
+    # ports:
+    #   - "3306:3306"
+    env_file:
+      - db.env
+volumes:
+  mysql_data:
+
+    
