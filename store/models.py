@@ -17,11 +17,12 @@ class Collection(models.Model):
 
 
 
-class Product(models.Model):
+class Product(models.Model): 
     # sku = models.CharField(max_length=10,primary_key=True) # django automatically create id field for every class models
-    title = models.CharField(max_length=255)
+    title = models.CharField(max_length=254)
+    slug = models.SlugField()
     description = models.TextField()
-    price = models.DecimalField(max_digits=6,decimal_places=2)
+    unit_price = models.DecimalField(max_digits=6,decimal_places=2)
     inventory = models.IntegerField()
     last_update = models.DateTimeField(auto_now=True)
     collection = models.ForeignKey(to=Collection,on_delete=models.PROTECT)
@@ -43,6 +44,9 @@ class Customer(models.Model):
     phone =  models.CharField(max_length=20)
     birth_date = models.DateField(null=False)
     membership = models.CharField(max_length=1,choices=MEMBERSHIP_CHOICES,default=MEMBERSHIP_BRONZE)
+
+
+
 
 
 
@@ -69,6 +73,7 @@ class OrderItem(models.Model):
 
 class Address(models.Model): 
     street = models.CharField(max_length=255)   
+    zip = models.CharField(max_length=15)
     city = models.CharField(max_length=255)
     customer = models.ForeignKey(Customer,on_delete=models.CASCADE)
 
