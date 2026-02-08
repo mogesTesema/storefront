@@ -26,6 +26,8 @@ services:
       interval: 5s
       retries: 10
       timeout: 5s
+    ports:
+      - "3306:3306"
 
 volumes:
   mysql_data:
