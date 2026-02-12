@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.validators import MinValueValidator
 
 # Create your models here.
 
@@ -6,6 +7,9 @@ from django.db import models
 class Promotion(models.Model):
     description = models.CharField(max_length=255)
     discount = models.FloatField()
+
+    def __str__(self):
+        return self.description
 
 
 
@@ -27,12 +31,15 @@ class Product(models.Model):
     # sku = models.CharField(max_length=10,primary_key=True) # django automatically create id field for every class models
     title = models.CharField(max_length=254)
     slug = models.SlugField()
-    description = models.TextField()
-    unit_price = models.DecimalField(max_digits=6,decimal_places=2)
+    description = models.TextField(null=True,blank=True)
+    unit_price = models.DecimalField(
+        max_digits=6,
+        decimal_places=2,
+        validators=[MinValueValidator(1)])
     inventory = models.IntegerField()
     last_update = models.DateTimeField(auto_now=True)
     collection = models.ForeignKey(to=Collection,on_delete=models.PROTECT)
-    promotions = models.ManyToManyField(Promotion)
+    promotions = models.ManyToManyField(Promotion,blank=True)
 
     def __str__(self):
         return self.title

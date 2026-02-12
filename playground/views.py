@@ -61,7 +61,7 @@ def say_hello(request):
     Collection.objects.filter(pk=111).delete()
     
 
-    query_set = Collection.objects.create(title="aninamtion game",featured_product_id=1)
+    # query_set = Collection.objects.create(title="aninamtion game",featured_product_id=1)
     products = "list(query_set)"
 
     # Transaction
