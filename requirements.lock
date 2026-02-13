@@ -8,7 +8,10 @@ django==5.2.11
     # via
     #   -r requirements.in
     #   django-debug-toolbar
+    #   djangorestframework
 django-debug-toolbar==6.2.0
+    # via -r requirements.in
+djangorestframework==3.16.1
     # via -r requirements.in
 mysqlclient==2.2.7
     # via -r requirements.in

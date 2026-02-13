@@ -6,3 +6,6 @@ Django>=5.0,<6.0
 debugpy
 django-debug-toolbar
 mysqlclient
+
+# restfull api
+djangorestframework
