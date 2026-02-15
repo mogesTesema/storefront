@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'playground',
     'store',
     'tags',
+    'core',
     'store_custom',
     'likes'
 ]

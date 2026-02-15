@@ -26,11 +26,19 @@ def product_list(request):
         raise()
 
 
-@api_view(["GET"])
-def product_detail(request,id:int):
+@api_view(["GET","PUT"])
+def product_detail(request,id:int): 
+
     product = get_object_or_404(Product,pk=id)  #Product.objects.get(pk=id)
-    serializer = ProductSerializer(product,context={'request': request})
-    return Response(serializer.data)
+    if request.method == "GET":
+        serializer = ProductSerializer(product,context={'request': request})
+        return Response(serializer.data)
+    elif request.method == "PUT":
+        serializer = ProductSerializer(product, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data,status=status.HTTP_201_CREATED )
+
   
 
 

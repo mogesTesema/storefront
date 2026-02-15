@@ -44,3 +44,27 @@ class ProductSerializer(serializers.ModelSerializer):
         result = product.unit_price * Decimal(1.1)
         return result.quantize(Decimal('0.01'))
     
+
+    
+    """
+    the save method call the following methods depends on the state of serializer
+    """
+    # def create(self,validated_data):
+    #     product = Product(**validated_data)
+    #     product.other = 1
+    #     product.save()
+
+    #     return product
+    
+    # def update(self,instance,validated_data):
+    #     instance.unit_price = validated_data.get('unit_price')
+    #     instance.save()
+
+    """
+    we can override build in validation to add custom validation logic in our serialize object.
+    """
+ 
+    # def validate(self,data):
+    #     if data['password'] != data['confirm_password']:
+    #         return serializers.ValidationError("password don't match with confirmation password")
+    #     return data
