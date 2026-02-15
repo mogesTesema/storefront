@@ -30,7 +30,7 @@ class Collection(models.Model):
 class Product(models.Model): 
     # sku = models.CharField(max_length=10,primary_key=True) # django automatically create id field for every class models
     title = models.CharField(max_length=254)
-    slug = models.SlugField()
+    slug = models.SlugField(null=True)
     description = models.TextField(null=True,blank=True)
     unit_price = models.DecimalField(
         max_digits=6,

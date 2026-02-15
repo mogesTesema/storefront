@@ -63,10 +63,10 @@ class ProductAdmin(admin.ModelAdmin):
             return "Hight"
     @admin.action(description="clear inventory")
     def clear_inventory(self,request,queryset):
-        upldated_count = queryset.update(inventory=0)
+        updated_count = queryset.update(inventory=0)
         self.message_user(
             request,
-            f'{upldated_count} products were successfully deleted',
+            f'{updated_count} products were successfully deleted',
             messages.ERROR
         )
 
