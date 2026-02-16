@@ -9,3 +9,4 @@ mysqlclient
 
 # restfull api
 djangorestframework
+drf-nested-routers

@@ -9,9 +9,14 @@ django==5.2.11
     #   -r requirements.in
     #   django-debug-toolbar
     #   djangorestframework
+    #   drf-nested-routers
 django-debug-toolbar==6.2.0
     # via -r requirements.in
 djangorestframework==3.16.1
+    # via
+    #   -r requirements.in
+    #   drf-nested-routers
+drf-nested-routers==0.95.0
     # via -r requirements.in
 mysqlclient==2.2.7
     # via -r requirements.in

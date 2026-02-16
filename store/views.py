@@ -8,8 +8,8 @@ from rest_framework.mixins import ListModelMixin, CreateModelMixin
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Product,Collection,OrderItem
-from .serializers import ProductSerializer,CollectionSerializer
+from .models import Product,Collection,OrderItem,Review
+from .serializers import ProductSerializer,CollectionSerializer,ReviewSerializer
 # Create your views here.
 
 
@@ -28,7 +28,54 @@ class ProductViewSet(ModelViewSet):
         return super().destory(request,*args,**kwargs)
 
 
+
+
+
+class CollectionViewSet(ModelViewSet):
+    queryset = Collection.objects.annotate(products_count=Count('product')).all()
+    serializer_class = CollectionSerializer
+
+    def destroy(self,request,*args,**kwargs):
+        collection = get_object_or_404(Collection,pk=kwargs['pk'])
+        if collection.product_set.count() > 0:
+            return Response({"error":"collection cannot be deleted since it is associated with products."})
+        
+        return super().destroy(request,*args,**kwargs)
     
+
+
+class ReviewViewSet(ModelViewSet):
+    serializer_class = ReviewSerializer
+
+    def get_queryset(self):
+        return Review.objects.filter(product_id=self.kwargs['product_pk'])
+
+    def get_serializer_context(self):
+        return {'product_id':self.kwargs['product_pk']}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     # def delete(self,request,pk):
     #     product = get_object_or_404(Product,pk=pk)
     #     if product.orderitems.count() > 0:
@@ -136,16 +183,6 @@ class ProductViewSet(ModelViewSet):
 
 
 
-class CollectionViewSet(ModelViewSet):
-    queryset = Collection.objects.annotate(products_count=Count('product')).all()
-    serializer_class = CollectionSerializer
-
-    def destroy(self,request,*args,**kwargs):
-        collection = get_object_or_404(Collection,pk=kwargs['pk'])
-        if collection.product_set.count() > 0:
-            return Response({"error":"collection cannot be deleted since it is associated with products."})
-        
-        return super().destroy(request,*args,**kwargs)
 
 
     # def delete(self,request,pk):
@@ -241,4 +278,7 @@ functional view that you manually check methods and despatch based on the method
 #     elif request.method == "DELETE":
 #         collection.delete()
 #         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+
 
