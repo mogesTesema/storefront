@@ -152,7 +152,9 @@ functional view that you manually check methods and despatch based on the method
 
 
 class CollectionDetail(RetrieveUpdateDestroyAPIView):
-    queryset = Collection
+    queryset = Collection.objects.annotate(
+        products_count=Count('product')
+    )
     serializer_class = CollectionSerializer
 
     # def get(self,request,pk):
@@ -167,10 +169,12 @@ class CollectionDetail(RetrieveUpdateDestroyAPIView):
     #     serializer.save()
     #     return Response(serializer.data,status=201)
     
-    # def delete(self,request,pk):
-    #     collection = get_object_or_404(Collection,pk=pk) 
-    #     collection.delete()
-    #     return Response(status=status.HTTP_204_NO_CONTENT)
+    def delete(self,request,pk):
+        collection = get_object_or_404(Collection,pk=pk)
+        if collection.product_set.count() > 0:
+            return Response({"error":"collection cannot be deleted since it is associated with products."})
+        collection.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 
