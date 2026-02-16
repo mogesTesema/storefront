@@ -3,26 +3,54 @@ from django.http import HttpResponse
 from django.db.models import Count
 from rest_framework.decorators import api_view
 from rest_framework.views import APIView
-from rest_framework.mixins import ListModelMixin, CreateModelMixin 
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.mixins import ListModelMixin, CreateModelMixin 
+from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Product,Collection
+from .models import Product,Collection,OrderItem
 from .serializers import ProductSerializer,CollectionSerializer
 # Create your views here.
 
 
-class ProductList(ListCreateAPIView):
-    queryset = Product.objects.select_related('collection').all()[:15]
+
+class ProductViewSet(ModelViewSet):
+    queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    # def get_queryset(self):
+
+    def get_serializer_context(self):
+        return {'request': self.request}
+    
+    def destory(self,request,*args,**kwargs):
+        if OrderItem.objects.filter(product_id=kwargs['pk']).count() > 0:
+            return Response({'error':'product can not be deleted because it is associated with orderitem'},status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        
+        return super().destory(request,*args,**kwargs)
+
+
+    
+    # def delete(self,request,pk):
+    #     product = get_object_or_404(Product,pk=pk)
+    #     if product.orderitems.count() > 0:
+    #         return Response({'error':'product can not be deleted because it is associated with orderitem'},status=status.HTTP_405_METHOD_NOT_ALLOWED)
+    #     product.delete()
+
+    #     return Response(status=status.HTTP_204_NO_CONTENT) 
+
+
+
+
+# class ProductList(ListCreateAPIView):
+#     queryset = Product.objects.all()[:15]
+#     serializer_class = ProductSerializer
+#     # def get_queryset(self):
     #     return Product.objects.select_related('collection').all()[:15]
 
     # def get_serializer_class(self):
     #     return ProductSerializer
     
-    def get_serializer_context(self):
-        return {'request': self.request}
+    # def get_serializer_context(self):
+    #     return {'request': self.request}
     
 
     # def get(self,request): 
@@ -54,9 +82,9 @@ class ProductList(ListCreateAPIView):
 #         return Response(serializer.data,status=status.HTTP_201_CREATED)
      
  
-class ProductDetail(RetrieveUpdateDestroyAPIView):
-    queryset = Product.objects.all()
-    serializer_class = ProductSerializer
+# class ProductDetail(RetrieveUpdateDestroyAPIView):
+#     queryset = Product.objects.all()
+#     serializer_class = ProductSerializer
 
     # def get_object(self,id):
     #     return get_object_or_404(Product,pk=id)
@@ -73,15 +101,15 @@ class ProductDetail(RetrieveUpdateDestroyAPIView):
     #     serializer.save()
     #     return Response(serializer.data,status=status.HTTP_201_CREATED)
     
-    def delete(self,request,pk):
+    # def delete(self,request,pk):
 
-        product = get_object_or_404(Product,pk=pk)
-        if product.orderitems.count() > 0:
-            return Response({'error':'product can not be deleted because it is associated with orderitem'},status=status.HTTP_405_METHOD_NOT_ALLOWED)
+    #     product = get_object_or_404(Product,pk=pk)
+    #     if product.orderitems.count() > 0:
+    #         return Response({'error':'product can not be deleted because it is associated with orderitem'},status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
-        product.delete()
+    #     product.delete()
 
-        return Response(status=status.HTTP_204_NO_CONTENT) 
+    #     return Response(status=status.HTTP_204_NO_CONTENT) 
 
    
 
@@ -108,12 +136,33 @@ class ProductDetail(RetrieveUpdateDestroyAPIView):
 
 
 
-class CollectionList(ListCreateAPIView):
+class CollectionViewSet(ModelViewSet):
+    queryset = Collection.objects.annotate(products_count=Count('product')).all()
+    serializer_class = CollectionSerializer
+
+    def destroy(self,request,*args,**kwargs):
+        collection = get_object_or_404(Collection,pk=kwargs['pk'])
+        if collection.product_set.count() > 0:
+            return Response({"error":"collection cannot be deleted since it is associated with products."})
+        
+        return super().destroy(request,*args,**kwargs)
+
+
+    # def delete(self,request,pk):
+    #     collection.delete()
+    #     return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+    
+
+
+
+# class CollectionList(ListCreateAPIView):
     """
     GenericeView that handles behaviors automatically by leveraging mixins and genericveiws database layer and APIViews http method handling capability.
     """
-    queryset = Collection.objects.annotate(products_count=Count('product')).all()
-    serializer_class = CollectionSerializer
+    # queryset = Collection.objects.annotate(products_count=Count('product')).all()
+    # serializer_class = CollectionSerializer
     
     """
     APIView that handle http methods, define them and add premision and authentication over orginal parent view class.
@@ -151,11 +200,11 @@ functional view that you manually check methods and despatch based on the method
 #         return Response(serializer.data,status=201)
 
 
-class CollectionDetail(RetrieveUpdateDestroyAPIView):
-    queryset = Collection.objects.annotate(
-        products_count=Count('product')
-    )
-    serializer_class = CollectionSerializer
+# class CollectionDetail(RetrieveUpdateDestroyAPIView):
+#     queryset = Collection.objects.annotate(
+#         products_count=Count('product')
+#     )
+#     serializer_class = CollectionSerializer
 
     # def get(self,request,pk):
     #     collection = get_object_or_404(Collection,pk=pk) 
@@ -169,12 +218,12 @@ class CollectionDetail(RetrieveUpdateDestroyAPIView):
     #     serializer.save()
     #     return Response(serializer.data,status=201)
     
-    def delete(self,request,pk):
-        collection = get_object_or_404(Collection,pk=pk)
-        if collection.product_set.count() > 0:
-            return Response({"error":"collection cannot be deleted since it is associated with products."})
-        collection.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+    # def delete(self,request,pk):
+    #     collection = get_object_or_404(Collection,pk=pk)
+    #     if collection.product_set.count() > 0:
+    #         return Response({"error":"collection cannot be deleted since it is associated with products."})
+    #     collection.delete()
+    #     return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 
