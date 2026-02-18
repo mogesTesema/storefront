@@ -44,9 +44,8 @@ INSTALLED_APPS = [
     'playground',
     'store',
     'tags',
+    'likes',
     'core',
-    'store_custom',
-    'likes'
 ]
 
 MIDDLEWARE = [
@@ -150,6 +149,10 @@ REST_FRAMEWORK = {
 }
 
 
+
+AUTH_USER_MODEL = 'core.User'
+
+
 LOGGING = {
     "version": 1,  # REQUIRED
     "disable_existing_loggers": False,
@@ -165,3 +168,6 @@ LOGGING = {
         },
     },
 }
+
+
+
