@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from decimal import Decimal
-from .models import Product,Collection,Review,Cart,CartItem
+from .models import Product,Collection,Review,Cart,CartItem,Customer
 
 
 
@@ -147,3 +147,21 @@ class UpdateCartItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = CartItem
         fields = ['quantity']
+
+
+
+
+class CustomerSerializer(serializers.ModelSerializer):
+    user_id = serializers.IntegerField(read_only=True)
+    class Meta:
+        model = Customer
+        fields = ['id','user_id','phone','birth_date','membership']
+    
+    def save(self,**kwargs):
+        user_id = self.context['user_id']
+        profile = Customer.objects.get(user_id=user_id)
+
+        if not profile:
+            Customer.objects.create(user_id=user_id,**self.validated_data)
+        else:
+            Customer.objects.update(**self.validated_data)
