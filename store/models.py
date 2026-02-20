@@ -90,7 +90,7 @@ class Order(models.Model):
     ]
     placed_at = models.DateTimeField(auto_now_add=True)
     payment_status = models.CharField(max_length=1,choices=PAYMENT_STATUS_CHOICES,default=PAYMENT_STATUS_PANDING)
-    customer = models.ForeignKey('Customer',on_delete=models.CASCADE )
+    customer = models.ForeignKey('Customer',on_delete=models.CASCADE)
 
     class Meta:
         permissions =[
@@ -98,7 +98,7 @@ class Order(models.Model):
         ]
 
 class OrderItem(models.Model):
-    order = models.ForeignKey(Order,on_delete=models.PROTECT)
+    order = models.ForeignKey(Order,on_delete=models.PROTECT,related_name='items')
     product = models.ForeignKey(Product,on_delete=models.PROTECT,related_name='orderitems')
     quantity = models.PositiveSmallIntegerField()
     unit_price = models.DecimalField(max_length=6,decimal_places=2,max_digits=5)

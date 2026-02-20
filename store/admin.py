@@ -6,143 +6,137 @@ from django.urls import reverse
 from . import models
 
 
-
 # Register your models here.
 
+
 class InventoryFilter(admin.SimpleListFilter):
-    title = 'inventory'
-    parameter_name = 'inventory'
+    title = "inventory"
+    parameter_name = "inventory"
 
     def lookups(self, request, model_admin):
-        return [
-            ('<10',"Low"),
-            ('<50','Ok'),
-            ('>50','High')
-        ]
-    
+        return [("<10", "Low"), ("<50", "Ok"), (">50", "High")]
+
     def queryset(self, request, queryset):
-        if self.value() == '<10':
+        if self.value() == "<10":
             return queryset.filter(inventory__lt=10)
-        if self.value() == '<50':
+        if self.value() == "<50":
             return queryset.filter(inventory__lte=50)
-        
-        if self.value() == '>50':
+
+        if self.value() == ">50":
             return queryset.filter(inventory__gt=50)
-    
-
-
 
 
 @admin.register(models.Product)
 class ProductAdmin(admin.ModelAdmin):
-    autocomplete_fields = ['collection','promotions']
-    prepopulated_fields = {
-        'slug': ['title']
-    }
+    autocomplete_fields = ["collection", "promotions"]
+    prepopulated_fields = {"slug": ["title"]}
     # exclude = ['promotions']
     # readonly_fields = ['title']
-    actions = ['clear_inventory']
-    list_display = ['title','unit_price','inventory_status','collection_title']
+    actions = ["clear_inventory"]
+    list_display = ["title", "unit_price", "inventory_status", "collection_title"]
     list_editable = ["unit_price"]
-    list_filter = ['collection','last_update',InventoryFilter]
+    list_filter = ["collection", "last_update", InventoryFilter]
     list_per_page = 20
-    list_select_related = ['collection']
-    search_fields = ['title']
- 
+    list_select_related = ["collection"]
+    search_fields = ["title"]
 
-    def collection_title(self,product):
+    def collection_title(self, product):
         return product.collection.title
 
-    @admin.display(ordering='inventory')
-    def inventory_status(self,product):
+    @admin.display(ordering="inventory")
+    def inventory_status(self, product):
         if product.inventory < 10:
             return "Low"
         elif product.inventory < 50:
             return "Ok"
         else:
             return "Hight"
+
     @admin.action(description="clear inventory")
-    def clear_inventory(self,request,queryset):
+    def clear_inventory(self, request, queryset):
         updated_count = queryset.update(inventory=0)
         self.message_user(
             request,
-            f'{updated_count} products were successfully deleted',
-            messages.ERROR
+            f"{updated_count} products were successfully deleted",
+            messages.ERROR,
         )
-
-    
 
 
 @admin.register(models.Customer)
 class CustomerAdmin(admin.ModelAdmin):
-    autocomplete_fields = ['user']
-    list_display = ['user__first_name','user__last_name','membership','orders']
-    list_editable = ['membership']
+    autocomplete_fields = ["user"]
+    list_display = ["user__first_name", "user__last_name", "membership", "orders"]
+    list_editable = ["membership"]
     list_per_page = 10
-    list_select_related = ['user']
-    ordering = ['user__first_name','user__last_name']
-    search_fields = ['user__first_name__istartswith','user__last_name__istartswith']
+    list_select_related = ["user"]
+    ordering = ["user__first_name", "user__last_name"]
+    search_fields = ["user__first_name__istartswith", "user__last_name__istartswith"]
 
+    @admin.display(ordering="orders_count")
+    def orders(self, customer):
+        url = (
+            reverse("admin:store_order_changelist")
+            + "?"
+            + urlencode({"customer__id": str(customer.id)})
+        )
 
-    @admin.display(ordering='orders_count')
-    def orders(self,customer):
-        url = (reverse("admin:store_order_changelist")
-               + "?"
-               + urlencode({
-                   'customer__id':str(customer.id)
-               })
-           
-            )
-
-        return format_html('<a href={}>{}</a>',url,customer.orders_count) 
+        return format_html("<a href={}>{}</a>", url, customer.orders_count)
 
     def get_queryset(self, request):
-        return super().get_queryset(request).annotate(orders_count= Count('order'))
+        return super().get_queryset(request).annotate(orders_count=Count("order"))
+
+
 @admin.register(models.Collection)
 class CollectionAdmin(admin.ModelAdmin):
-    search_fields = ['title']
-    list_display = ['title','products_count']
-  
+    search_fields = ["title"]
+    list_display = ["title", "products_count"]
 
-    @admin.display(ordering='products_count')
-    def products_count(self,collection):
+    @admin.display(ordering="products_count")
+    def products_count(self, collection):
         url = (
-            reverse('admin:store_product_changelist')
-                + '?'
-                + urlencode({
-                    'collection__id':str(collection.id)
-                })
-                )
-        return format_html('<a href="{}" target="_blank">{}</a>',url,collection.products_count)
+            reverse("admin:store_product_changelist")
+            + "?"
+            + urlencode({"collection__id": str(collection.id)})
+        )
+        return format_html(
+            '<a href="{}" target="_blank">{}</a>', url, collection.products_count
+        )
 
-    
-    
     def get_queryset(self, request):
-        return super().get_queryset(request).annotate(products_count=Count('product'))
-   
-
-
+        return super().get_queryset(request).annotate(products_count=Count("product"))
 
 
 class OrderItemInLine(admin.TabularInline):
     model = models.OrderItem
-    autocomplete_fields = ['product']
+    autocomplete_fields = ["product"]
     extra = 1
+
 
 @admin.register(models.Order)
 class OrderAdmin(admin.ModelAdmin):
-    
-    autocomplete_fields = ['customer']
-    list_display = ['placed_at','payment_status','customer']
-    list_filter = ['placed_at','payment_status']
+    autocomplete_fields = ["customer"]
+    list_display = ["placed_at", "payment_status", "customer"]
+    list_filter = ["placed_at", "payment_status"]
     list_per_page = 20
-    list_select_related = ['customer']
+    list_select_related = ["customer"]
     inlines = [OrderItemInLine]
-
 
 
 @admin.register(models.Promotion)
 class PromotionAdmin(admin.ModelAdmin):
-    search_fields = ['description']
+    search_fields = ["description"]
+
 
 # siogs
+@admin.register(models.OrderItem)
+class OrderItemAdmin(admin.ModelAdmin):
+    autocomplete_fields = ["product"]
+
+
+@admin.register(models.Cart)
+class CartAdmin(admin.ModelAdmin):
+    adutocomplete_fields = ['id']
+
+@admin.register(models.CartItem)
+class CartItemAdmin(admin.ModelAdmin):
+    ...
