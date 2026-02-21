@@ -175,7 +175,7 @@ class CustomerViewSet(ModelViewSet):
 
 
 class OrderViewSet(ModelViewSet):
-    http_method_names = ['get','patch','delete','head','option']
+    http_method_names = ['get','post','patch','delete','head','option']
     # queryset = Order.objects.all()
     # serializer_class = OrderSerializer
     # permission_classes = [IsAuthenticated]
