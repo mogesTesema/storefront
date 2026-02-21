@@ -154,9 +154,9 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
 
-    # 'DEFAULT_PERMISSION_CLASSES':[
-    #     'rest_framework.permissions.IsAuthenticated'
-    # ],
+    'DEFAULT_PERMISSION_CLASSES':[
+        'rest_framework.permissions.IsAuthenticated'
+    ],
 
 }
  
@@ -169,9 +169,15 @@ AUTH_USER_MODEL = 'core.User'
 
 
 DJOSER = {
+    'PERMISSIONS': {
+        'user_create': ['rest_framework.permissions.AllowAny'],  
+        'user': ['rest_framework.permissions.IsAuthenticated'], 
+     
+    },
     'SERIALIZERS':{
         'user_create':'core.serializers.UserCreateSerializer',
         'current_user':'core.serializers.UserSerializer',
+        'user': 'core.serializers.UserSerializer'
      }
 }
 
@@ -179,7 +185,6 @@ DJOSER = {
 
 SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('JWT',),
-    # 'SIGNING_KEY':"",
     "ACCESS_TOKEN_LIFETIME": timedelta(hours=2),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
 }
@@ -189,7 +194,7 @@ SIMPLE_JWT = {
 
 
 LOGGING = {
-    "version": 1,  # REQUIRED
+    "version": 1,  
     "disable_existing_loggers": False,
     "handlers": {
         "console": {
