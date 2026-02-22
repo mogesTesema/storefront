@@ -10,6 +10,7 @@ from .models import (
     Customer,
     Order,
     OrderItem,
+    ProductImage
 )
 from .signals import order_created
 
@@ -23,8 +24,21 @@ class CollectionSerializer(serializers.ModelSerializer):
     # id = serializers.IntegerField()
     # title = serializers.CharField(max_length=255)
 
+class ProductImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductImage
+        fields = ['id','image']
+
+    
+    def create(self,validated_data):
+        product_id = self.context['product_id']
+        return ProductImage.objects.create(product_id=product_id,**validated_data)
+
+
 
 class ProductSerializer(serializers.ModelSerializer):
+    images = ProductImageSerializer(many=True)
+    price_with_tax = serializers.SerializerMethodField(method_name="calcuate_tax")
     class Meta:
         model = Product
         fields = [
@@ -34,20 +48,28 @@ class ProductSerializer(serializers.ModelSerializer):
             "price_with_tax",
             "collection",
             "inventory",
+            "images",
         ]
 
+    # def get_images(self,product):
+
+    #     product_images = ProductImage.objects.filter(product_id=product.id)
+    #     serializer = ProductImageSerializer(product_images,many=True)
+
+    #     return serializer.data
+
+    def calcuate_tax(self, product: Product):
+        result = product.unit_price * Decimal(1.1)
+        return result.quantize(Decimal("0.01"))
+    
     # id = serializers.IntegerField()
     # title = serializers.CharField(max_length=255)
     # price = serializers.DecimalField(max_digits=6,decimal_places=2,source='unit_price')
-    price_with_tax = serializers.SerializerMethodField(method_name="calcuate_tax")
     # collection = serializers.HyperlinkedRelatedField(
     #     queryset= Collection.objects.all(),
     #     view_name = 'collection-detail'
     # )
 
-    def calcuate_tax(self, product: Product):
-        result = product.unit_price * Decimal(1.1)
-        return result.quantize(Decimal("0.01"))
 
     """
     the save method call the following methods depends on the state of serializer
@@ -71,6 +93,7 @@ class ProductSerializer(serializers.ModelSerializer):
     #     if data['password'] != data['confirm_password']:
     #         return serializers.ValidationError("password don't match with confirmation password")
     #     return data
+
 
 
 class ReviewSerializer(serializers.ModelSerializer):
