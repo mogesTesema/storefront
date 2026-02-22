@@ -4,6 +4,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from store.admin import ProductAdmin
 from tags.models import TaggedItem
 from store.models import Product
+from store.admin import ProductImageInline
 from .models import User
 # Register your models here.
 
@@ -26,7 +27,7 @@ class TageInline(GenericTabularInline):
 
 
 class CustomProductAdmin(ProductAdmin):
-    inlines = [TageInline] 
+    inlines = [TageInline,ProductImageInline] 
 
 admin.site.unregister(Product)
 admin.site.register(Product,CustomProductAdmin)
