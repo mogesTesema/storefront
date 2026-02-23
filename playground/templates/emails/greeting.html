@@ -1,0 +1,86 @@
+{% block subject %}
+Welcome to Our Platform 🎉
+{% endblock %}
+
+{% block text_body %}
+Hi {{ name }},
+
+Welcome to our platform!
+
+Visit: http://localhost:8000
+
+Best regards,
+The Team
+{% endblock %}
+
+{% block html_body %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome</title>
+</head>
+<body style="margin:0; padding:0; background-color:#f0fdf4; font-family: Arial, sans-serif;">
+
+<table width="100%" cellpadding="0" cellspacing="0" bgcolor="#f0fdf4">
+<tr>
+<td align="center">
+
+    <table width="600" cellpadding="0" cellspacing="0" bgcolor="#ffffff">
+
+        <!-- Header -->
+        <tr>
+            <td align="center" bgcolor="#14532d" style="padding:30px;">
+                <h1 style="color:#ffffff; margin:0; font-size:24px;">
+                    Welcome Aboard 🚀
+                </h1>
+            </td>
+        </tr>
+
+        <!-- Body -->
+        <tr>
+            <td style="padding:40px 30px; color:#111827;">
+                <h2 style="color:#166534; margin-top:0;">Hi {{ name }},</h2>
+
+                <p style="font-size:16px; line-height:1.6;">
+                    We're excited to have you on board.
+                </p>
+
+                <!-- High Contrast Button -->
+                <table align="center" cellpadding="0" cellspacing="0" style="margin:30px 0;">
+                    <tr>
+                        <td align="center"
+                            bgcolor="#1d4ed8"
+                            style="padding:15px 30px; border:2px solid #1e40af;">
+                            <a href="http://localhost:8000"
+                               style="color:#ffffff; font-size:16px; font-weight:bold; text-decoration:none; display:inline-block;">
+                                GO TO DASHBOARD
+                            </a>
+                        </td>
+                    </tr>
+                </table>
+
+                <p style="font-size:14px; color:#374151;">
+                    If the button does not work, copy and paste this link:
+                    <br>
+                    <strong>http://localhost:8000</strong>
+                </p>
+            </td>
+        </tr>
+
+        <!-- Footer -->
+        <tr>
+            <td align="center" bgcolor="#e0f2fe" style="padding:20px; font-size:12px; color:#1e3a8a;">
+                © 2026 Your Company
+            </td>
+        </tr>
+
+    </table>
+
+</td>
+</tr>
+</table>
+
+</body>
+</html>
+{% endblock %}

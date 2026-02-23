@@ -1,3 +1,5 @@
+from django.core.mail import send_mail,mail_admins,EmailMessage, BadHeaderError
+from templated_mail.mail import BaseEmailMessage
 from django.shortcuts import render
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q,F,Value,Func,ExpressionWrapper,DecimalField
@@ -12,8 +14,47 @@ from tags.models import TaggedItem
 
 
 
-# it is request-handle, action, the name view is so confusing.
 def say_hello(request):
+    try:
+        # send_mail('subejct','message','moges@gmail.com',['bob@gmail.com','chip@gmail.com'])
+        # mail_admins('subject','message',html_message='message')
+        # message = EmailMessage('subject','message','from@gmail.com',['hello@gmail.com','adusw@x.ai'])
+        # message.attach_file('playground/static/images/images.jpeg')
+        # message.send()
+        message = BaseEmailMessage(
+            template_name='emails/greeting.html',
+            context = {
+                'name':'Mosh'
+            }
+        )
+        message.send(['jon@gmail.com'])
+
+    except BadHeaderError:
+        return HttpResponse("it fial")
+    return render(request,'hello.html',{'name':'Mosh'})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# it is request-handle, action, the name view is so confusing.
+# def say_hello(request):
     # query_set1 = Product.objects.filter(Q(inventory__lt=10) & ~Q(unit_price__lt=10))
     # query_set2 = Product.objects.filter(inventory__gt=F('unit_price'))
     # query_set3 = Product.objects.order_by("-unit_price","title").reverse()
@@ -52,31 +93,31 @@ def say_hello(request):
     # products = list(query_set)
     # total_products = len(products) 
 
-    collection = Collection(pk=112)
+    # collection = Collection(pk=112)
     # collection.title = "laptop accessaries"
     # collection.featured_product = Product(pk=212)
     # collection.featured_product_id = 2
     # collection.save()
-    Collection.objects.filter(pk=112).update(featured_product=32)
-    Collection.objects.filter(pk=111).delete()
+    # Collection.objects.filter(pk=112).update(featured_product=32)
+    # Collection.objects.filter(pk=111).delete()
     
 
     # query_set = Collection.objects.create(title="aninamtion game",featured_product_id=1)
-    products = "list(query_set)"
+    # products = "list(query_set)"
 
     # Transaction
-    with transaction.atomic():
-        order = Order()
-        order.customer_id =3
-        order.save()
+    # with transaction.atomic():
+    #     order = Order()
+    #     order.customer_id =3
+    #     order.save()
 
-        item = OrderItem()
-        item.order = order
-        item.product_id = 4
-        item.quantity = 3
-        item.unit_price = 24
-    raw_data = Customer.objects.raw("SELECT * FROM store_customer where id>90")
-    with connection.cursor() as cursor:
-        cursor.execute("insert into store_customer values('2222','moges','tesema','mogess@gmail.com','223-2323','1980-01-01','G')")
-    return render(request,"hello.html",{"name":"Moges","products":products,"tags":list(raw_data)})
+    #     item = OrderItem()
+    #     item.order = order
+    #     item.product_id = 4
+    #     item.quantity = 3
+    #     item.unit_price = 24
+    # raw_data = Customer.objects.raw("SELECT * FROM store_customer where id>90")
+    # with connection.cursor() as cursor:
+    #     cursor.execute("insert into store_customer values('2222','moges','tesema','mogess@gmail.com','223-2323','1980-01-01','G')")
+    # return render(request,"hello.html",{"name":"Moges","products":products,"tags":list(raw_data)})
  
