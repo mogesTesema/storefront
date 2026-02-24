@@ -10,27 +10,30 @@ from django.http import HttpResponse
 from django.contrib.contenttypes.models import ContentType
 from store.models import Product, OrderItem, Order,Customer,Collection
 from tags.models import TaggedItem
+from time import sleep
 
-
-
+from .tasks import notify_customers
 
 def say_hello(request):
-    try:
-        # send_mail('subejct','message','moges@gmail.com',['bob@gmail.com','chip@gmail.com'])
-        # mail_admins('subject','message',html_message='message')
-        # message = EmailMessage('subject','message','from@gmail.com',['hello@gmail.com','adusw@x.ai'])
-        # message.attach_file('playground/static/images/images.jpeg')
-        # message.send()
-        message = BaseEmailMessage(
-            template_name='emails/greeting.html',
-            context = {
-                'name':'Mosh'
-            }
-        )
-        message.send(['jon@gmail.com'])
+    # try:
+    #     send_mail('subejct','message','moges@gmail.com',['bob@gmail.com','chip@gmail.com'])
+    #     mail_admins('subject','message',html_message='message')
+    #     message = EmailMessage('subject','message','from@gmail.com',['hello@gmail.com','adusw@x.ai'])
+    #     message.attach_file('playground/static/images/images.jpeg')
+    #     message.send()
+    #     message = BaseEmailMessage(
+    #         template_name='emails/greeting.html',
+    #         context = {
+    #             'name':'Mosh'
+    #         }
+    #     )
+    #     message.send(['jon@gmail.com'])
 
-    except BadHeaderError:
-        return HttpResponse("it fial")
+    # except BadHeaderError:
+    #     return HttpResponse("it fial")
+    notify_customers.delay('hello')
+   
+
     return render(request,'hello.html',{'name':'Mosh'})
 
 
