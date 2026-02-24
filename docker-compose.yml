@@ -32,6 +32,21 @@ services:
     ports:
       - "3306:3306"
 
+
+  test:
+    build: .
+    command: pytest
+    volumes:
+      - .:/app
+    env_file:
+      - backend.env
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - shared-network
+
+
 volumes:
   mysql_data:
 
