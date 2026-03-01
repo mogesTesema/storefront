@@ -14,14 +14,16 @@ RUN apt-get update && apt-get install -y \
     pkg-config \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Python tools (rarely change)
-RUN pip install --no-cache-dir uv
+# Install uv binary
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
 
 # Copy requirements first
-COPY requirements.lock .
+COPY requirements.lock ./requirements.lock
 
 # Install Python dependencies
-RUN uv pip install --system -r requirements.lock
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv pip install --system -r requirements.lock
 
 # Copy project source last (frequent changes)
 COPY . .

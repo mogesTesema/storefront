@@ -3,3 +3,5 @@ backend.env
 db.env
 .idea
 media/
+.venv
+*.pyc

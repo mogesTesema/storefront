@@ -19,3 +19,11 @@ django-templated-mail
 redis
 celery
 flower
+
+## Dev automated testing tools
+pytest
+pytest-django
+# pytest-watch
+locust
+django-silk
+

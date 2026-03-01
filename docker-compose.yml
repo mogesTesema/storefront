@@ -1,19 +1,19 @@
+version: "3.9"
 services:
   web:
-    build: .
-    working_dir: /app
-    command: python manage.py runserver 0.0.0.0:8000
+    build:
+      context: .
     volumes:
-      - .:/app
-    ports:
-      - "8000:8000"
-    networks:
-      - shared-network
+      - .:/app                     
     env_file:
       - backend.env
+    ports:
+      - "8000:8000"
     depends_on:
       db:
         condition: service_healthy
+    networks:
+      - shared-network
 
   db:
     image: mysql:8.1
@@ -25,30 +25,28 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u${MYSQL_USER}", "-p${MYSQL_PASSWORD}"]
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u$${MYSQL_USER} -p$${MYSQL_PASSWORD} || exit 1"]
       interval: 5s
       retries: 10
       timeout: 5s
     ports:
       - "3306:3306"
 
-
   test:
-    build: .
-    command: pytest
+    build:
+      context: .
+    depends_on:
+      web:
+        condition: service_started
     volumes:
       - .:/app
-    env_file:
-      - backend.env
-    depends_on:
-      db:
-        condition: service_healthy
+    command: pytest
     networks:
       - shared-network
 
-
 volumes:
   mysql_data:
+
 
 networks:
   shared-network:
