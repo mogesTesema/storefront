@@ -11,9 +11,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AlterField(
-            model_name='cart',
-            name='id',
-            field=models.UUIDField(default=uuid.uuid4, primary_key=True, serialize=False),
-        ),
+        # This migration is now redundant because 0001_initial.py creates Cart with UUID
     ]

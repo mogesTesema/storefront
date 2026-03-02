@@ -35,4 +35,15 @@ class WebsiteUser(HttpUser):
         result = response.json()
         self.cart_id = result['id']
 
+class EmailSender(HttpUser):
+    wait_time = between(1,2)
+    x = 0
+    @task
+    def send_email(self):
+        response = self.client.get('/playground/hello/')
+        print(self.x, response)
+        self.x += 1
+    
+       
+
 

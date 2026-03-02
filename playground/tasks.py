@@ -7,5 +7,5 @@ from celery import shared_task
 def notify_customers(message):
     print('Sending 100k emails...')
     print(message)
-    sleep(10)
+    sleep(12)
     print('Email were successfully sent!')

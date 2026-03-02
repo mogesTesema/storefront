@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta
+import environ
 from celery.schedules import crontab
 import os
 
@@ -45,7 +46,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'djoser',
     'rest_framework_simplejwt',
-    'silk',
+    # 'silk',
     # 'debug_toolbar',
     'playground',
     'store',
@@ -64,7 +65,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     # "debug_toolbar.middleware.DebugToolbarMiddleware",
-    'silk.middleware.SilkyMiddleware',
+    # 'silk.middleware.SilkyMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -90,20 +91,26 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
+env = environ.Env(
+    DEBUG=(bool, True),
+    DB_PORT=(int, 5432),
+)
+
+environ.Env.read_env(os.path.join(BASE_DIR, "backend.env"))
+
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.mysql",
-        "NAME": os.environ.get("DB_NAME3"),
-        "USER": os.environ.get("DB_USER"),
-        "PASSWORD": os.environ.get("DB_PASSWORD"),
-        "HOST": os.environ.get("DB_HOST"),
-        "PORT": int(os.environ.get("DB_PORT", 3306)),
-        "OPTIONS": {
-            "init_command": "SET sql_mode='STRICT_TRANS_TABLES'"
-        }
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": env("DB_NAME"),
+        "USER": env("DB_USER"),
+        "PASSWORD": env("DB_PASSWORD"),
+        "HOST": env("DB_HOST"),
+        "PORT": env("DB_PORT"),
+      
     }
 }
+
 
 
 # Password validation
@@ -216,11 +223,10 @@ ADMINS = [
 ]
  
 
-CELERY_BROKER_URL = 'redis://redis:6379/1'
+CELERY_BROKER_URL = 'redis://localhost:6379/1'
 CELERY_BEAT_SCHEDULE = {
     'notify_customers':{
         'task':'playground.tasks.notify_customers',
-        # 'schedule':crontab(minute='*/1'),
         'schedule': timedelta(seconds=1),
         'args':['hello crontab'],
         'kwargs':{}
@@ -228,21 +234,21 @@ CELERY_BEAT_SCHEDULE = {
 }
 
 
-LOGGING = {
-    "version": 1,  
-    "disable_existing_loggers": False,
-    "handlers": {
-        "console": {
-            "class": "logging.StreamHandler",
-        },
-    },
-    "loggers": {
-        "django.db.backends": {
-            "handlers": ["console"],
-            "level": "DEBUG",
-        },
-    },
-}
+# LOGGING = {
+#     "version": 1,  
+#     "disable_existing_loggers": False,
+#     "handlers": {
+#         "console": {
+#             "class": "logging.StreamHandler",
+#         },
+#     },
+#     "loggers": {
+#         "django.db.backends": {
+#             "handlers": ["console"],
+#             "level": "DEBUG",
+#         },
+#     },
+# }
 
 
 
