@@ -10,10 +10,17 @@ from django.http import HttpResponse
 from django.contrib.contenttypes.models import ContentType
 from store.models import Product, OrderItem, Order,Customer,Collection
 from tags.models import TaggedItem
-from time import sleep
-
+import requests
+from django.core.cache import cache
+from django.views.decorators.cache import cache_page
+from django.utils.decorators import method_decorator
+from rest_framework.views import APIView
 from .tasks import notify_customers
+import logging
 
+logger = logging.getLogger(__name__)
+
+@cache_page(2*60)
 def say_hello(request):
     # try:
     #     send_mail('subejct','message','moges@gmail.com',['bob@gmail.com','chip@gmail.com'])
@@ -31,10 +38,30 @@ def say_hello(request):
 
     # except BadHeaderError:
     #     return HttpResponse("it fial")
-    notify_customers.delay('hello')
-   
+    # notify_customers.delay('hello')
+    # key = 'httpbin_result'
+    # if cache.get(key) is None:
 
-    return render(request,'hello.html',{'name':'Mosh'})
+    #     response = requests.get('https://httpbin.org/delay/2')
+    #     data = response.json()
+    #     cache.set(key,data,timeout=10*69)
+    # response = requests.get('https://httpbin.org/delay/2')
+    # data = response.json()
+    # return render(request,'hello.html',{'name':data})
+    pass
+
+
+class SayHelloView(APIView):
+
+    @method_decorator(cache_page(5*60))
+    def get(self,request):
+        logger.info("slow endpoint called")
+        response = requests.get('https://httpbin.org/delay/2')
+        data = response.json()
+        logger.critical('slow endpoint done')
+        return render(request,'hello.html',{'name':data})
+
+
 
 
 

@@ -41,8 +41,7 @@ class EmailSender(HttpUser):
     @task
     def send_email(self):
         response = self.client.get('/playground/hello/')
-        print(self.x, response)
-        self.x += 1
+       
     
        
 
