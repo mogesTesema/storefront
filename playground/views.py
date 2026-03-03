@@ -1,53 +1,23 @@
-from django.core.mail import send_mail,mail_admins,EmailMessage, BadHeaderError
-from templated_mail.mail import BaseEmailMessage
 from django.shortcuts import render
-from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Q,F,Value,Func,ExpressionWrapper,DecimalField
-from django.db.models.functions import Concat
-from django.db.models.aggregates import Count,Max,Min,Avg,Sum
-from django.db import transaction,connection
-from django.http import HttpResponse
-from django.contrib.contenttypes.models import ContentType
-from store.models import Product, OrderItem, Order,Customer,Collection
-from tags.models import TaggedItem
 import requests
-from django.core.cache import cache
 from django.views.decorators.cache import cache_page
 from django.utils.decorators import method_decorator
 from rest_framework.views import APIView
-from .tasks import notify_customers
+from rest_framework.decorators import api_view,permission_classes
+from rest_framework.permissions import IsAuthenticated,AllowAny
+from rest_framework.response import Response
+from rest_framework import status
+from .models import Payment
+from .serializers import PaymentSerializer
+from django.views.decorators.csrf import csrf_exempt
 import logging
+import os
 
 logger = logging.getLogger(__name__)
 
 @cache_page(2*60)
 def say_hello(request):
-    # try:
-    #     send_mail('subejct','message','moges@gmail.com',['bob@gmail.com','chip@gmail.com'])
-    #     mail_admins('subject','message',html_message='message')
-    #     message = EmailMessage('subject','message','from@gmail.com',['hello@gmail.com','adusw@x.ai'])
-    #     message.attach_file('playground/static/images/images.jpeg')
-    #     message.send()
-    #     message = BaseEmailMessage(
-    #         template_name='emails/greeting.html',
-    #         context = {
-    #             'name':'Mosh'
-    #         }
-    #     )
-    #     message.send(['jon@gmail.com'])
-
-    # except BadHeaderError:
-    #     return HttpResponse("it fial")
-    # notify_customers.delay('hello')
-    # key = 'httpbin_result'
-    # if cache.get(key) is None:
-
-    #     response = requests.get('https://httpbin.org/delay/2')
-    #     data = response.json()
-    #     cache.set(key,data,timeout=10*69)
-    # response = requests.get('https://httpbin.org/delay/2')
-    # data = response.json()
-    # return render(request,'hello.html',{'name':data})
+   
     pass
 
 
@@ -66,88 +36,135 @@ class SayHelloView(APIView):
 
 
 
+CHAPA_URL = "https://api.chapa.co/v1/transaction/initialize"
+CHAPA_SECRET_KEY = os.environ.get("CHAPA_SECRET_KEY")
 
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def payment(request):
+    """
+    Initialize payment with Chapa
+    """
+    serializer = PaymentSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
 
+    payment = serializer.save(
+    user=request.user,
+    status="pending"
+)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-# it is request-handle, action, the name view is so confusing.
-# def say_hello(request):
-    # query_set1 = Product.objects.filter(Q(inventory__lt=10) & ~Q(unit_price__lt=10))
-    # query_set2 = Product.objects.filter(inventory__gt=F('unit_price'))
-    # query_set3 = Product.objects.order_by("-unit_price","title").reverse()
-    # query_set4 = Product.objects.filter(collection__id=3).filter(Q(inventory__gte=10)& Q(unit_price__gte=20)).order_by("unit_price").reverse()[:20]
-    # query_set5 = Product.objects.values_list("unit_price","title","inventory","collection__title").order_by("unit_price").reverse()[:20]
-    # query_set6 = OrderItem.objects.values("product__title","product__inventory","product__unit_price").order_by("product__title")
-    # query_set = Product.objects.earliest("unit_price")
-    # query_set = product.objects.least("unit_price")
-    # pordered_product_set = OrderItem.objects.values('product__id').distinct()
-    # query_set = Product.objects.filter(id__in=pordered_product_set).order_by("title")
-    # query_set = Product.objects.defer("id","title")
-
-    # select_related when the object has one instance of desired object,one-to-many relationship, uses on join query
-    # prefetch_related when the object can have many instance of desired object, many-to-many relationship, uses two quey
-    # query_set = Product.objects.select_related("collection__title").all()
-    # query_set = Product.objects.prefetch_related("promotions").select_related("collection").all()
-
-    # result = Product.objects.filter(collection__id=3).aggregate(count=Count('id'),min_price=Min('unit_price'))
-    # query_set = Order.objects.select_related("customer").prefetch_related("orderitem_set__product").order_by('-placed_at')[:5]
-    # query_set = Customer.objects.annotate(is_new=Value(True),
-    #                                       new_id=F('id')+1,
-    #                                       full_name=Func(F('first_name'),Value(' '),F('last_name'),function="CONCAT"),
-    #                                       )
-    
-    # query_set = Customer.objects.annotate(full_name=Concat('first_name',Value(' '),'last_name')
-    #          
-    # 
-    #                              )
-    # discounted_price =ExpressionWrapper(F('unit_price')*0.8,output_field=DecimalField())
-    # query_set = Product.objects.annotate(discount_price=discounted_price)
-
-   
-    # query_set = Customer.objects.annotate(orders=Count('order'))
-
-    # query_set = TaggedItem.objects.get_tags_for(Product,3)
-    # products = list(query_set)
-    # total_products = len(products) 
-
-    # collection = Collection(pk=112)
-    # collection.title = "laptop accessaries"
-    # collection.featured_product = Product(pk=212)
-    # collection.featured_product_id = 2
-    # collection.save()
-    # Collection.objects.filter(pk=112).update(featured_product=32)
-    # Collection.objects.filter(pk=111).delete()
     
 
-    # query_set = Collection.objects.create(title="aninamtion game",featured_product_id=1)
-    # products = "list(query_set)"
+    headers = {
+        "Authorization": f"Bearer {CHAPA_SECRET_KEY}",
+        "Content-Type": "application/json"
+    }
 
-    # Transaction
-    # with transaction.atomic():
-    #     order = Order()
-    #     order.customer_id =3
-    #     order.save()
+    payload = {
+        "amount": str(payment.amount),
+        "currency": payment.currency,
+        "email": payment.user.email,
+        "first_name": payment.user.first_name or "Customer",
+        "last_name": payment.user.last_name or "User",
+        "tx_ref": str(payment.tx_ref),
+        "callback_url": "https://subarcuated-jani-unimmanently.ngrok-free.dev/playground/webhook/",
+        "return_url": "https://subarcuated-jani-unimmanently.ngrok-free.dev/playground/payment-success/",
+        "customization": {
+            "title": "Payment for App",
+            "description": "Order payment"
+        }
+    }
 
-    #     item = OrderItem()
-    #     item.order = order
-    #     item.product_id = 4
-    #     item.quantity = 3
-    #     item.unit_price = 24
-    # raw_data = Customer.objects.raw("SELECT * FROM store_customer where id>90")
-    # with connection.cursor() as cursor:
-    #     cursor.execute("insert into store_customer values('2222','moges','tesema','mogess@gmail.com','223-2323','1980-01-01','G')")
-    # return render(request,"hello.html",{"name":"Moges","products":products,"tags":list(raw_data)})
- 
+    try:
+        chapa_response = requests.post(
+            CHAPA_URL,
+            json=payload,
+            headers=headers,
+            timeout=30
+        )
+
+        chapa_response_data = chapa_response.json()
+
+        if chapa_response.status_code != 200:
+            payment.status = "failed"
+            payment.save()
+
+            return Response(
+                {"error": "Failed to initialize payment", "details": chapa_response_data},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        return Response({
+            "message": "Payment initialized successfully",
+            "checkout_url": chapa_response_data["data"]["checkout_url"],
+            "tx_ref": payment.tx_ref
+        })
+
+    except requests.exceptions.RequestException as e:
+        payment.status = "failed"
+        payment.save()
+
+        return Response(
+            {"error": "Connection error", "details": str(e)},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+
+
+
+
+
+
+
+VERIFY_URL = "https://api.chapa.co/v1/transaction/verify/"
+
+@csrf_exempt
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def chapa_webhook(request):
+    tx_ref = request.data.get("tx_ref")
+
+    if not tx_ref:
+        return Response({"error": "tx_ref missing"}, status=400)
+
+    try:
+        payment = Payment.objects.get(tx_ref=tx_ref)
+    except Payment.DoesNotExist:
+        return Response({"error": "Payment not found"}, status=404)
+
+
+
+    headers = {
+        "Authorization": f"Bearer {CHAPA_SECRET_KEY}"
+    }
+
+
+    verify_response = requests.get(
+        f"{VERIFY_URL}{tx_ref}",
+        headers=headers
+    )
+
+    verify_data = verify_response.json()
+
+    if verify_response.status_code == 200 and verify_data["data"]["status"] == "success":
+        payment.status = "success"
+    else:
+        payment.status = "failed"
+
+    payment.save()
+
+    print("\n"*10)
+    print(payment.status)
+    print("\n"*5)
+
+    return Response({"message": "Webhook processed","status":payment.status})
+
+
+
+class PaymentSuccessView(APIView):
+    def get(self, request):
+        tx_ref = request.query_params.get("tx_ref", "")
+        context = {"message": "Payment completed successfully.", "tx_ref": tx_ref}
+       
+        return render(request, "payment_success.html", context)

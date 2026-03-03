@@ -147,9 +147,9 @@ class CustomerViewSet(ModelViewSet):
     # permission_classes = [IsAdminUser]
 
     def get_serializer_context(self):
-        context = super().get_serializer_context()
-        context.update({"user_id": self.request.user.id})
-        return context
+        
+        return {"user_id": self.request.user.id}
+       
 
     # def get_permissions(self):
     #     if self.request.method == "GET":
@@ -167,10 +167,10 @@ class CustomerViewSet(ModelViewSet):
     def me(self, request):
         customer = Customer.objects.get(user_id=request.user.id)
         if request.method == "GET":
-            serializer = CustomerSerializer(customer)
+            serializer = self.get_serializer(customer)
             return Response(serializer.data)
         elif request.method == "PUT":
-            serializer = CustomerSerializer(customer, data=request.data)
+            serializer = self.get_serializer(customer, data=request.data)
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data)

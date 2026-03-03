@@ -12,8 +12,6 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta
-import environ
-from celery.schedules import crontab
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -230,7 +228,7 @@ CACHES = {
 
 LOGGING = {
     "version": 1,  
-    "disable_existing_loggers": False,
+    "disable_existing_loggers": True,
 
     'formatters':{
         'verbose':{
@@ -260,12 +258,12 @@ LOGGING = {
     },
 
     "loggers": {
-        "django.db.backends": {
-            "handlers": ["dbhandler"],
+        "storefront.playground": {
+            "handlers": ["console"],
             "level": "DEBUG",
         },
         '':{
-            'handlers':['file','console'],
+            'handlers':['file'],
             'level':os.environ.get('DJANGO_LOG_LEVEL','INFO')
 
         }

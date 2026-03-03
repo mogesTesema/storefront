@@ -8,7 +8,11 @@ SECRET_KEY = 'django-insecure-nb+6d+80=r_e0(z^$kys@n@i1%c@iyag6%*47b@f37%$dyy_1z
 DEBUG = True
 
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1","0.0.0.0"]
+ALLOWED_HOSTS = ["localhost",
+ "127.0.0.1",
+ "0.0.0.0",
+ "https://subarcuated-jani-unimmanently.ngrok-free.dev",
+ "subarcuated-jani-unimmanently.ngrok-free.dev"]
 
 
 
